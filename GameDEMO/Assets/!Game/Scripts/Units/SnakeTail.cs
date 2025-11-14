@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using _Game.Scripts.Units.Player;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace _Game.Scripts.Units
@@ -9,28 +7,22 @@ namespace _Game.Scripts.Units
     {
         #region FIELDS SERIALIZED
 
-        [SerializeField] private PlayerMovement movement;
-        [SerializeField] private List<Transform> details = new();
+        [SerializeField] private Transform detailPrefab;
         [SerializeField] private float detailDistance = 1;
 
         #endregion
 
         #region FIELDS
 
+        private readonly List<Transform> _details = new();
         private readonly List<Vector3> _positionHistory = new();
 
+        private float _speed;
+        private Transform _head;
+        
         #endregion
 
         #region UNITY FUNCTIONS
-
-        private void Awake()
-        {
-            _positionHistory.Add(movement.Head.position);
-            foreach (var detail in details)
-            {
-                _positionHistory.Add(detail.position);
-            }
-        }
 
         private void Update()
         {
@@ -38,27 +30,81 @@ namespace _Game.Scripts.Units
             UpdateTailPosition(distance);
         }
 
+        #endregion
+
+        #region METHODS
+
+        public void Initialize(Transform head, float speed, int detailCount)
+        {
+            _head = head;
+            _speed = speed;
+            
+            _details.Add(transform);
+            
+            _positionHistory.Add(_head.position);
+            _positionHistory.Add(transform.position);
+
+            SetDetailCount(detailCount);
+        }
+
+        private void SetDetailCount(int detailCount)
+        {
+            if (detailCount == _details.Count + 1) return;
+
+            var diff = (_details.Count - 1) - detailCount;
+
+            if (diff < 1)
+            {
+                for (var i = 0; i < -diff; i++)
+                {
+                    AddDetail();
+                }
+            }
+            else
+            {
+                for (var i = 0; i < diff; i++)
+                {
+                    RemoveDetail();
+                }
+            }
+        }
+
+        private void AddDetail()
+        {
+            var position = _details[^1].position;
+            var detail = Instantiate(detailPrefab, position, Quaternion.identity);
+
+            _details.Insert(0, detail);
+            _positionHistory.Add(position);
+        }
+
+        private void RemoveDetail()
+        {
+            if (_details.Count <= 1) return;
+
+            var detail = _details[0];
+            _details.Remove(detail);
+            Destroy(detail.gameObject);
+            _positionHistory.RemoveAt(_positionHistory.Count - 1);
+        }
+        
         private void UpdateTailPosition(float distance)
         {
-            for (var i = 0; i < details.Count; i++)
+            for (var i = 0; i < _details.Count; i++)
             {
-                details[i].position =
+                _details[i].position =
                     Vector3.Lerp(_positionHistory[i + 1], _positionHistory[i], distance / detailDistance);
-
-                var direction = (_positionHistory[i] - _positionHistory[i + 1]).normalized;
-
-                details[i].position += direction * (Time.deltaTime * movement.MoveSpeed);
             }
         }
 
         private void UpdatePositionHistory(out float distance)
         {
             var position = _positionHistory[0];
-            distance = (movement.Head.position - position).magnitude;
+            distance = (_head.position - position).magnitude;
 
             while (distance > detailDistance)
             {
-                var direction = (movement.Head.position - position).normalized;
+                var direction = (_head.position - position).normalized;
 
                 _positionHistory.Insert(0, position + direction * detailDistance);
                 _positionHistory.RemoveAt(_positionHistory.Count - 1);
@@ -67,9 +113,13 @@ namespace _Game.Scripts.Units
             }
         }
 
-        #endregion
-
-        #region METHODS
+        public void Destroy()
+        {
+            foreach (var detail in _details)
+            {
+                Destroy(detail.gameObject);
+            }
+        }
 
         #endregion
     }

@@ -5,14 +5,15 @@ namespace _Game.Scripts.Units.Player
 {
     public class PlayerController : MonoBehaviour
     {
-        [SerializeField] private PlayerMovement movement;
         [SerializeField] private Transform cursor;
         
+        private SnakeMovement _movement;
         private Camera _camera;
         private Plane _plane;
 
-        private void Awake()
+        public void Initialize(SnakeMovement movement)
         {
+            _movement = movement;
             _plane = new Plane(Vector3.up, Vector3.zero);
             _camera = Camera.main;
         }
@@ -27,7 +28,7 @@ namespace _Game.Scripts.Units.Player
             if (Input.GetMouseButton(0))
             {
                 MoveCursor();
-                movement.LookAt(cursor);
+                _movement.LookAt(cursor);
             }
 
             if (Input.GetMouseButtonUp(0))
@@ -35,8 +36,8 @@ namespace _Game.Scripts.Units.Player
                 cursor.gameObject.SetActive(false);
             }
             
-            movement.Rotate();
-            movement.Move();
+            _movement.Rotate();
+            _movement.Move();
         }
 
         private void MoveCursor()

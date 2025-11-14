@@ -2,13 +2,12 @@
 
 namespace _Game.Scripts.Units.Player
 {
-    public class PlayerMovement : MonoBehaviour
+    public class SnakeMovement : MonoBehaviour
     {
         #region FIELDS SERIALIZED
 
         [SerializeField] private float moveSpeed = 2;
         [SerializeField] private float rotationSpeed = 90;
-        [SerializeField] private PlayerUnit unit;
         [SerializeField] private Transform head;
 
         #endregion
@@ -30,7 +29,7 @@ namespace _Game.Scripts.Units.Player
 
         public void Move()
         {
-            unit.transform.position += head.forward * (Time.deltaTime * moveSpeed);
+            transform.position += head.forward * (Time.deltaTime * moveSpeed);
         }
 
         public void Rotate()
