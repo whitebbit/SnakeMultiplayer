@@ -1,4 +1,5 @@
 using System;
+using _Game.Scripts.Multiplayer;
 using UnityEngine;
 
 namespace _Game.Scripts.Units.Player
@@ -6,13 +7,15 @@ namespace _Game.Scripts.Units.Player
     public class PlayerController : MonoBehaviour
     {
         [SerializeField] private Transform cursor;
-        
+
+        private PlayerStateTransmitter _stateTransmitter;
         private SnakeMovement _movement;
         private Camera _camera;
         private Plane _plane;
 
-        public void Initialize(SnakeMovement movement)
+        public void Initialize(SnakeMovement movement, PlayerStateTransmitter stateTransmitter)
         {
+            _stateTransmitter = stateTransmitter;
             _movement = movement;
             _plane = new Plane(Vector3.up, Vector3.zero);
             _camera = Camera.main;
@@ -20,24 +23,18 @@ namespace _Game.Scripts.Units.Player
 
         private void Update()
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                cursor.gameObject.SetActive(true);
-            }
-            
-            if (Input.GetMouseButton(0))
+            var button = Input.GetMouseButton(0);
+            cursor.gameObject.SetActive(button);
+
+            if (button)
             {
                 MoveCursor();
                 _movement.LookAt(cursor);
             }
 
-            if (Input.GetMouseButtonUp(0))
-            {
-                cursor.gameObject.SetActive(false);
-            }
-            
             _movement.Rotate();
             _movement.Move();
+            _stateTransmitter.SendTransform();
         }
 
         private void MoveCursor()

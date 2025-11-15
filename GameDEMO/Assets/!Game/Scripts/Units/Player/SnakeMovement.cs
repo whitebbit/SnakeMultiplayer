@@ -45,6 +45,11 @@ namespace _Game.Scripts.Units.Player
             _targetDirection = target.position - head.position;
         }
 
+        public void GetMoveInfo(out Vector3 position)
+        {
+            position = transform.position;
+        }
+
         #endregion
     }
 }

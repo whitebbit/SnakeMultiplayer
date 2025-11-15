@@ -27,7 +27,7 @@ namespace _Game.Scripts.Units.Player
         public void Initialize(int detailCount)
         {
             _tail = Instantiate(tailPrefab, transform.position, Quaternion.identity);
-            _tail.Initialize(movement.Head, movement.MoveSpeed, detailCount);
+            _tail.Initialize(movement.Head, detailCount);
         }
 
         public void Destroy()

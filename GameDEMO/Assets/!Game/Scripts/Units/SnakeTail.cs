@@ -16,40 +16,42 @@ namespace _Game.Scripts.Units
 
         private readonly List<Transform> _details = new();
         private readonly List<Vector3> _positionHistory = new();
+        private readonly List<Quaternion> _rotationHistory = new();
 
-        private float _speed;
         private Transform _head;
-        
+
         #endregion
 
         #region UNITY FUNCTIONS
 
         private void Update()
         {
-            UpdatePositionHistory(out var distance);
-            UpdateTailPosition(distance);
+            UpdateTransformHistory(out var distance);
+            UpdateTailTransform(distance);
         }
 
         #endregion
 
         #region METHODS
 
-        public void Initialize(Transform head, float speed, int detailCount)
+        public void Initialize(Transform head, int detailCount)
         {
             _head = head;
-            _speed = speed;
-            
+
             _details.Add(transform);
-            
+
             _positionHistory.Add(_head.position);
             _positionHistory.Add(transform.position);
+
+            _rotationHistory.Add(_head.rotation);
+            _rotationHistory.Add(transform.rotation);
 
             SetDetailCount(detailCount);
         }
 
         private void SetDetailCount(int detailCount)
         {
-            if (detailCount == _details.Count + 1) return;
+            if (detailCount == _details.Count - 1) return;
 
             var diff = (_details.Count - 1) - detailCount;
 
@@ -72,10 +74,13 @@ namespace _Game.Scripts.Units
         private void AddDetail()
         {
             var position = _details[^1].position;
-            var detail = Instantiate(detailPrefab, position, Quaternion.identity);
+            var rotation = _details[^1].rotation;
+            var detail = Instantiate(detailPrefab, position, rotation);
 
             _details.Insert(0, detail);
+
             _positionHistory.Add(position);
+            _rotationHistory.Add(rotation);
         }
 
         private void RemoveDetail()
@@ -83,21 +88,28 @@ namespace _Game.Scripts.Units
             if (_details.Count <= 1) return;
 
             var detail = _details[0];
+
             _details.Remove(detail);
+
             Destroy(detail.gameObject);
+
             _positionHistory.RemoveAt(_positionHistory.Count - 1);
+            _rotationHistory.RemoveAt(_rotationHistory.Count - 1);
         }
-        
-        private void UpdateTailPosition(float distance)
+
+        private void UpdateTailTransform(float distance)
         {
             for (var i = 0; i < _details.Count; i++)
             {
-                _details[i].position =
-                    Vector3.Lerp(_positionHistory[i + 1], _positionHistory[i], distance / detailDistance);
+                var delta = distance / detailDistance;
+                var detail = _details[i];
+
+                detail.position = Vector3.Lerp(_positionHistory[i + 1], _positionHistory[i], delta);
+                detail.rotation = Quaternion.Lerp(_rotationHistory[i + 1], _rotationHistory[i], delta);
             }
         }
 
-        private void UpdatePositionHistory(out float distance)
+        private void UpdateTransformHistory(out float distance)
         {
             var position = _positionHistory[0];
             distance = (_head.position - position).magnitude;
@@ -108,6 +120,9 @@ namespace _Game.Scripts.Units
 
                 _positionHistory.Insert(0, position + direction * detailDistance);
                 _positionHistory.RemoveAt(_positionHistory.Count - 1);
+
+                _rotationHistory.Insert(0, _head.rotation);
+                _rotationHistory.RemoveAt(_rotationHistory.Count - 1);
 
                 distance -= detailDistance;
             }
