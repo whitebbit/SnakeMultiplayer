@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using _Game.Scripts.Multiplayer.Schemas;
+using _Game.Scripts.Units;
+using _Game.Scripts.Units.Enemy;
 using _Game.Scripts.Units.Player;
 using Colyseus;
 using UnityEngine;
@@ -10,8 +12,10 @@ namespace _Game.Scripts.Multiplayer
     {
         #region FIELDS SERIALIZED
 
-        [SerializeField] private PlayerController controllerPrefab;
+        [SerializeField] private SnakeMovement playerAimPrefab;
+
         [SerializeField] private PlayerUnit playerPrefab;
+        [SerializeField] private EnemyUnit enemyPrefab;
 
         #endregion
 
@@ -19,6 +23,7 @@ namespace _Game.Scripts.Multiplayer
 
         private const string GameRoomName = "state_handler";
         private ColyseusRoom<State> _room;
+        private readonly Dictionary<string, EnemyUnit> _enemies = new();
 
         #endregion
 
@@ -89,22 +94,36 @@ namespace _Game.Scripts.Multiplayer
         private void CreatePlayer(Player player)
         {
             var position = player.position.ToVector3();
-            var playerUnit = Instantiate(playerPrefab, position, Quaternion.identity);
-            var controller = Instantiate(controllerPrefab);
+            var rotation = Quaternion.identity;
+            var playerUnit = Instantiate(playerPrefab, position, rotation);
+            var aim = Instantiate(playerAimPrefab, position, rotation);
 
             playerUnit.Initialize(player.d);
+            aim.SetSpeed(playerUnit.Movement.MoveSpeed);
 
-            if (playerUnit.TryGetComponent(out SnakeMovement movement) &&
-                playerUnit.TryGetComponent(out PlayerStateTransmitter stateTransmitter))
-                controller.Initialize(movement, stateTransmitter);
+            if (!playerUnit.TryGetComponent(out PlayerStateTransmitter stateTransmitter)) return;
+
+            stateTransmitter.SetMovement(aim);
+            playerUnit.Controller.Initialize(player, playerUnit, aim, stateTransmitter);
         }
 
         private void CreateEnemy(string key, Player player)
         {
+            var position = player.position.ToVector3();
+            var enemyUnit = Instantiate(enemyPrefab, position, Quaternion.identity);
+
+            enemyUnit.Initialize(player.d);
+
+            enemyUnit.Controller.Initialize(player, enemyUnit);
+
+            _enemies.Add(key, enemyUnit);
         }
 
         private void RemoveEnemy(string key, Player player)
         {
+            if (!_enemies.Remove(key, out var enemy)) return;
+
+            enemy.Destroy();
         }
 
         #endregion

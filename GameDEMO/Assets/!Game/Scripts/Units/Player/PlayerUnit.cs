@@ -3,39 +3,31 @@ using UnityEngine;
 
 namespace _Game.Scripts.Units.Player
 {
-    public class PlayerUnit : MonoBehaviour
+    public class PlayerUnit : Unit<PlayerController>
     {
         #region FIELDS SERIALIZED
 
-        [SerializeField] private SnakeMovement movement;
-        [SerializeField] private SnakeTail tailPrefab;
+        [SerializeField] private PlayerController controllerPrefab;
 
         #endregion
 
         #region FIELDS
 
-        private SnakeTail _tail;
-        
+        public override PlayerController Controller { get; protected set; }
+
         #endregion
 
         #region UNITY FUNCTIONS
 
+        private void Awake()
+        {
+            Controller = Instantiate(controllerPrefab, Vector3.zero, Quaternion.identity);
+        }
+
         #endregion
 
         #region METHODS
-
-        public void Initialize(int detailCount)
-        {
-            _tail = Instantiate(tailPrefab, transform.position, Quaternion.identity);
-            _tail.Initialize(movement.Head, detailCount);
-        }
-
-        public void Destroy()
-        {
-            _tail.Destroy();
-            Destroy(gameObject);
-        }
-
+        
         #endregion
     }
 }

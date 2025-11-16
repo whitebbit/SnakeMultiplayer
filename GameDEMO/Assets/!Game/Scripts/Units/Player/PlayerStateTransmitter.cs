@@ -9,14 +9,13 @@ namespace _Game.Scripts.Units.Player
     {
         #region FIELDS SERIALIZED
 
-        [SerializeField] private SnakeMovement movement;
-
         #endregion
 
         #region FIELDS
 
+        private SnakeMovement _movement;
         private MultiplayerManager _multiplayerManager;
-        
+
         #endregion
 
         #region UNITY FUNCTIONS
@@ -30,15 +29,18 @@ namespace _Game.Scripts.Units.Player
 
         #region METHODS
 
+        public void SetMovement(SnakeMovement movement) => _movement = movement;
+
         public void SendTransform(Vector3 customPosition = default)
         {
-            movement.GetMoveInfo(out var position);
+            _movement.GetMoveInfo(out var position);
 
             var pos = customPosition == default ? position : customPosition;
 
             var data = new Dictionary<string, object>
             {
-                { "pos", new Dictionary<string, float>
+                {
+                    "pos", new Dictionary<string, float>
                     {
                         { "x", pos.x },
                         { "y", pos.y },
