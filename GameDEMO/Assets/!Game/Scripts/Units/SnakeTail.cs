@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using _Game.Scripts.Units.Skins;
 using UnityEngine;
 
 namespace _Game.Scripts.Units
@@ -7,18 +8,19 @@ namespace _Game.Scripts.Units
     {
         #region FIELDS SERIALIZED
 
-        [SerializeField] private Transform detailPrefab;
+        [SerializeField] private SnakePart detailPrefab;
         [SerializeField] private float detailDistance = 1;
 
         #endregion
 
         #region FIELDS
 
-        private readonly List<Transform> _details = new();
+        private readonly List<SnakePart> _details = new();
         private readonly List<Vector3> _positionHistory = new();
         private readonly List<Quaternion> _rotationHistory = new();
 
-        private Transform _head;
+        private SnakePart _head;
+        private UnitSkinLoader _skinLoader;
 
         #endregion
 
@@ -34,16 +36,21 @@ namespace _Game.Scripts.Units
 
         #region METHODS
 
-        public void Initialize(Transform head, int detailCount)
+        public void Initialize(SnakePart head, int detailCount, UnitSkinLoader skinLoader)
         {
+            _skinLoader = skinLoader;
             _head = head;
 
-            _details.Add(transform);
+            if (TryGetComponent(out SnakePart part))
+            {
+                skinLoader.AddSkinPart(part);
+                _details.Add(part);
+            }
 
-            _positionHistory.Add(_head.position);
+            _positionHistory.Add(_head.transform.position);
             _positionHistory.Add(transform.position);
 
-            _rotationHistory.Add(_head.rotation);
+            _rotationHistory.Add(_head.transform.rotation);
             _rotationHistory.Add(transform.rotation);
 
             SetDetailCount(detailCount);
@@ -73,14 +80,16 @@ namespace _Game.Scripts.Units
 
         private void AddDetail()
         {
-            var position = _details[^1].position;
-            var rotation = _details[^1].rotation;
+            var position = _details[^1].transform.position;
+            var rotation = _details[^1].transform.rotation;
             var detail = Instantiate(detailPrefab, position, rotation);
 
             _details.Insert(0, detail);
 
             _positionHistory.Add(position);
             _rotationHistory.Add(rotation);
+
+            _skinLoader.AddSkinPart(detail);
         }
 
         private void RemoveDetail()
@@ -90,6 +99,7 @@ namespace _Game.Scripts.Units
             var detail = _details[0];
 
             _details.Remove(detail);
+            _skinLoader.RemoveSkinPart(detail);
 
             Destroy(detail.gameObject);
 
@@ -104,24 +114,24 @@ namespace _Game.Scripts.Units
                 var delta = distance / detailDistance;
                 var detail = _details[i];
 
-                detail.position = Vector3.Lerp(_positionHistory[i + 1], _positionHistory[i], delta);
-                detail.rotation = Quaternion.Lerp(_rotationHistory[i + 1], _rotationHistory[i], delta);
+                detail.transform.position = Vector3.Lerp(_positionHistory[i + 1], _positionHistory[i], delta);
+                detail.transform.rotation = Quaternion.Lerp(_rotationHistory[i + 1], _rotationHistory[i], delta);
             }
         }
 
         private void UpdateTransformHistory(out float distance)
         {
             var position = _positionHistory[0];
-            distance = (_head.position - position).magnitude;
+            distance = (_head.transform.position - position).magnitude;
 
             while (distance > detailDistance)
             {
-                var direction = (_head.position - position).normalized;
+                var direction = (_head.transform.position - position).normalized;
 
                 _positionHistory.Insert(0, position + direction * detailDistance);
                 _positionHistory.RemoveAt(_positionHistory.Count - 1);
 
-                _rotationHistory.Insert(0, _head.rotation);
+                _rotationHistory.Insert(0, _head.transform.rotation);
                 _rotationHistory.RemoveAt(_rotationHistory.Count - 1);
 
                 distance -= detailDistance;

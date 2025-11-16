@@ -26,7 +26,7 @@ namespace _Game.Scripts.Units.Player
             _unit = unit;
             _movement = unit.Movement;
             _aim = aim;
-            
+
             _plane = new Plane(Vector3.up, Vector3.zero);
             _camera = Camera.main;
 
@@ -35,15 +35,17 @@ namespace _Game.Scripts.Units.Player
 
         private void Update()
         {
+            if (!_movement || !_aim) return;
+
             if (Input.GetMouseButton(0))
             {
                 MoveCursor();
                 _aim.LerpRotation(cursor.position);
             }
-            
+
             _aim.Move();
             _aim.Rotate();
-            
+
             _movement.Move();
             _movement.Rotate();
 

@@ -42,6 +42,9 @@ export class Player extends Schema {
     @type("uint8")
     d = 2;
 
+    @type("int8")
+    sI = 0;
+
     setPosition(vector: Vector3) {
       const position = new Vector3Schema();
 
@@ -56,11 +59,11 @@ export class Player extends Schema {
 export class State extends Schema {
     @type({ map: Player })
     players = new MapSchema<Player>();
-
-    something = "This attribute won't be sent to the client-side";
-
-    createPlayer(sessionId: string, data: any) {
+    
+    createPlayer(sessionId: string, data: any, skin: any) {
         const player = new Player();
+
+        player.sI = skin;
 
         if (data.pos)
           player.setPosition(data.pos);
@@ -83,10 +86,7 @@ export class State extends Schema {
 export class StateHandlerRoom extends Room<State> {
 
   maxClients = 2;
-  spawnPointsCount = 0;
   skins: number[] = [];
-
-  playerSpawnIndexes: Map<string, number> = new Map();
 
   mixArray(arr){
     var currentIndex = arr.length;
@@ -104,13 +104,12 @@ export class StateHandlerRoom extends Room<State> {
 
   onCreate(options: any) {
 
-      for (let index = 0; index < options.skins; index++) {
+      for (let index = 0; index < options.sC; index++) {
         this.skins.push(index)
       }
 
       this.mixArray(this.skins);
 
-      this.spawnPointsCount = options.spawnsCount;
       this.setState(new State());
 
       this.onMessage("move", (client, data) => {
@@ -127,12 +126,10 @@ export class StateHandlerRoom extends Room<State> {
 
       const skin = this.skins[this.clients.length - 1];
 
-      this.playerSpawnIndexes.set(client.sessionId, data.spawn);
       this.state.createPlayer(client.sessionId, data, skin);
   }
 
   onLeave(client: Client) {
-      this.playerSpawnIndexes.delete(client.sessionId);
       this.state.removePlayer(client.sessionId);
   }
 

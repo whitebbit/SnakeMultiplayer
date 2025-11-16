@@ -3,6 +3,7 @@ using _Game.Scripts.Multiplayer.Schemas;
 using _Game.Scripts.Units;
 using _Game.Scripts.Units.Enemy;
 using _Game.Scripts.Units.Player;
+using _Game.Scripts.Units.Skins;
 using Colyseus;
 using UnityEngine;
 
@@ -13,9 +14,10 @@ namespace _Game.Scripts.Multiplayer
         #region FIELDS SERIALIZED
 
         [SerializeField] private SnakeMovement playerAimPrefab;
-
         [SerializeField] private PlayerUnit playerPrefab;
         [SerializeField] private EnemyUnit enemyPrefab;
+
+        [SerializeField] private UnitSkin[] skins;
 
         #endregion
 
@@ -71,6 +73,7 @@ namespace _Game.Scripts.Multiplayer
         {
             var data = new Dictionary<string, object>
             {
+                { "sC", skins.Length }
             };
 
             _room = await client.JoinOrCreate<State>(GameRoomName, data);
@@ -98,11 +101,11 @@ namespace _Game.Scripts.Multiplayer
             var playerUnit = Instantiate(playerPrefab, position, rotation);
             var aim = Instantiate(playerAimPrefab, position, rotation);
 
-            playerUnit.Initialize(player.d);
+            playerUnit.Initialize(player.d, skins[player.sI]);
             aim.SetSpeed(playerUnit.Movement.MoveSpeed);
 
-            if (!playerUnit.TryGetComponent(out PlayerStateTransmitter stateTransmitter)) return;
-
+            var stateTransmitter = playerUnit.GetComponent<PlayerStateTransmitter>();
+            
             stateTransmitter.SetMovement(aim);
             playerUnit.Controller.Initialize(player, playerUnit, aim, stateTransmitter);
         }
@@ -112,7 +115,7 @@ namespace _Game.Scripts.Multiplayer
             var position = player.position.ToVector3();
             var enemyUnit = Instantiate(enemyPrefab, position, Quaternion.identity);
 
-            enemyUnit.Initialize(player.d);
+            enemyUnit.Initialize(player.d, skins[player.sI]);
 
             enemyUnit.Controller.Initialize(player, enemyUnit);
 

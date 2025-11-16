@@ -8,13 +8,13 @@ namespace _Game.Scripts.Units
 
         [SerializeField] private float moveSpeed = 2;
         [SerializeField] private float rotationSpeed = 90;
-        [SerializeField] private Transform head;
+        [SerializeField] private SnakePart head;
 
         #endregion
 
         #region FIELDS
 
-        public Transform Head => head;
+        public SnakePart Head => head;
         public float MoveSpeed => moveSpeed;
 
         private Vector3 _targetDirection;
@@ -30,7 +30,7 @@ namespace _Game.Scripts.Units
         public void Move()
         {
             if (head)
-                transform.position += head.forward * (Time.deltaTime * moveSpeed);
+                transform.position += head.transform.forward * (Time.deltaTime * moveSpeed);
             else
                 transform.position += transform.forward * (Time.deltaTime * moveSpeed);
         }
@@ -39,8 +39,8 @@ namespace _Game.Scripts.Units
         {
             var targetRotation = Quaternion.LookRotation(_targetDirection);
             if (head)
-                head.rotation =
-                    Quaternion.RotateTowards(head.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+                head.transform.rotation =
+                    Quaternion.RotateTowards(head.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
             else
                 transform.rotation =
                     Quaternion.RotateTowards(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
@@ -49,7 +49,7 @@ namespace _Game.Scripts.Units
         public void LerpRotation(Vector3 pointToLook)
         {
             if (head)
-                _targetDirection = pointToLook - head.position;
+                _targetDirection = pointToLook - head.transform.position;
             else
                 _targetDirection = pointToLook - transform.position;
         }
@@ -58,8 +58,8 @@ namespace _Game.Scripts.Units
         {
             if (head)
             {
-                _targetDirection = pointToLook - head.position;
-                head.LookAt(pointToLook);
+                _targetDirection = pointToLook - head.transform.position;
+                head.transform.LookAt(pointToLook);
             }
             else
             {

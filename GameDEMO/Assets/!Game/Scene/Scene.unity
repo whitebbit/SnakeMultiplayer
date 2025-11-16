@@ -1225,7 +1225,18 @@ MonoBehaviour:
   _colyseusSettings: {fileID: 11400000, guid: 7e3eb43f0319501409c5627ee4c73b2e, type: 2}
   playerAimPrefab: {fileID: 6643469518551485479, guid: 8710a97e7e9f91c4dae20cdff1f737b2, type: 3}
   playerPrefab: {fileID: 4114477992152187313, guid: 71e9e8010faf3d44689b399e20fbd7ad, type: 3}
-  enemyPrefab: {fileID: 3709911706376039279, guid: 08e08814f5cd971418892bbc2c444154, type: 3}
+  enemyPrefab: {fileID: 1568979098668681281, guid: 2e4fe334443c131439ecb16e7dbb87b0, type: 3}
+  skins:
+  - main: {fileID: 2100000, guid: 2ae11e6cba4c1954a8c438ff034e450c, type: 2}
+    tail: {fileID: 2100000, guid: b06f1c4f3c58fd243a50653b939ede2c, type: 2}
+  - main: {fileID: 2100000, guid: 1442ff272b8e16a42a283a862621e2ef, type: 2}
+    tail: {fileID: 2100000, guid: 000c6f96bd8854d40afab039ecad4cd4, type: 2}
+  - main: {fileID: 2100000, guid: 4dee682c0e3e8a149b0f4d03a1d7d89a, type: 2}
+    tail: {fileID: 2100000, guid: b5efde483782edf4183c13a43c01065e, type: 2}
+  - main: {fileID: 2100000, guid: 88a8b5c7f2b4fc043b0d1a237abab1c4, type: 2}
+    tail: {fileID: 2100000, guid: 0bc59fb764b13d743bdfa09ce28470ba, type: 2}
+  - main: {fileID: 2100000, guid: dee3c4b76f66cff44a6a4c7049f14a9b, type: 2}
+    tail: {fileID: 2100000, guid: 2bb01a09f1009f548929ec53f4a4bd6d, type: 2}
 --- !u!1001 &258637442
 PrefabInstance:
   m_ObjectHideFlags: 0

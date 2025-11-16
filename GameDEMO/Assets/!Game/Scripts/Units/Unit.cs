@@ -1,5 +1,6 @@
 ﻿using _Game.Scripts.Units.Interfaces;
 using _Game.Scripts.Units.Player;
+using _Game.Scripts.Units.Skins;
 using UnityEngine;
 
 namespace _Game.Scripts.Units
@@ -10,6 +11,7 @@ namespace _Game.Scripts.Units
 
         [SerializeField] private SnakeMovement movement;
         [SerializeField] private SnakeTail tailPrefab;
+        [SerializeField] private UnitSkinLoader skinLoader;
 
         #endregion
 
@@ -28,10 +30,12 @@ namespace _Game.Scripts.Units
 
         #region METHODS
 
-        public virtual void Initialize(int detailCount)
+        public virtual void Initialize(int detailCount, UnitSkin unitSkin)
         {
             _tail = Instantiate(tailPrefab, transform.position, Quaternion.identity);
-            _tail.Initialize(movement.Head, detailCount);
+            _tail.Initialize(movement.Head, detailCount, skinLoader);
+
+            skinLoader.LoadSkin(unitSkin);
         }
 
         public virtual void Destroy()
@@ -41,7 +45,7 @@ namespace _Game.Scripts.Units
         }
 
         public void SetDetailCount(int detailCount) => _tail.SetDetailCount(detailCount);
-        
+
         #endregion
     }
 }
