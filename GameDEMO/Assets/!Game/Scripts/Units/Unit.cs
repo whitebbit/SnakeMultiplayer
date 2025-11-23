@@ -20,7 +20,7 @@ namespace _Game.Scripts.Units
         public abstract TController Controller { get; protected set; }
         public SnakeMovement Movement => movement;
 
-        private SnakeTail _tail;
+        protected SnakeTail Tail;
 
         #endregion
 
@@ -32,19 +32,19 @@ namespace _Game.Scripts.Units
 
         public virtual void Initialize(int detailCount, UnitSkin unitSkin)
         {
-            _tail = Instantiate(tailPrefab, transform.position, Quaternion.identity);
-            _tail.Initialize(movement.Head, detailCount, skinLoader);
+            Tail = Instantiate(tailPrefab, transform.position, Quaternion.identity);
+            Tail.Initialize(movement.Head, detailCount, skinLoader);
 
             skinLoader.LoadSkin(unitSkin);
         }
 
         public virtual void Destroy()
         {
-            _tail.Destroy();
+            Tail.Destroy();
             Destroy(gameObject);
         }
 
-        public void SetDetailCount(int detailCount) => _tail.SetDetailCount(detailCount);
+        public void SetDetailCount(int detailCount) => Tail.SetDetailCount(detailCount);
 
         #endregion
     }

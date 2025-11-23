@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using _Game.Scripts.Detectors;
+using _Game.Scripts.Map;
 using _Game.Scripts.Multiplayer.Schemas;
 using _Game.Scripts.Units.Interfaces;
 using Colyseus.Schema;
@@ -33,8 +34,10 @@ namespace _Game.Scripts.Units.Player
 
             _player.OnChange += OnChange;
 
-            if(_aim.TryGetComponent(out Detector detector))
+            if (_aim.TryGetComponent(out Detector detector))
                 detector.Initialize(_movement.Head.transform);
+            
+            GameContext.OnPlayerGameOver += Destroy;
         }
 
         private void Update()
@@ -56,9 +59,13 @@ namespace _Game.Scripts.Units.Player
             _stateTransmitter.SendTransform();
         }
 
-        private void OnDestroy()
+        private void Destroy()
         {
             _player.OnChange -= OnChange;
+            _unit.Destroy();
+            
+            Destroy(_aim.gameObject);
+            Destroy(gameObject);
         }
 
         private void MoveCursor()

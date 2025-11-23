@@ -10,6 +10,7 @@ namespace _Game.Scripts.Detectors
         #region FIELDS SERIALIZED
 
         [SerializeField] private float radius;
+        [SerializeField] private LayerMask collisionLayer;
 
         #endregion
 
@@ -24,6 +25,7 @@ namespace _Game.Scripts.Detectors
 
         private void FixedUpdate()
         {
+            if (!_point) return;
             DetectCollisions();
         }
 
@@ -38,11 +40,16 @@ namespace _Game.Scripts.Detectors
 
         private void DetectCollisions()
         {
-            var size = Physics.OverlapSphereNonAlloc(_point.position, radius, _results);
+            var size = Physics.OverlapSphereNonAlloc(_point.position, radius, _results, collisionLayer);
 
             for (var i = 0; i < size; i++)
             {
                 if (_results[i].TryGetComponent(out ICollectable obj)) obj.Collect();
+                else
+                {
+                    Debug.Log(_results[i].name + " is not collectable");
+                    GameContext.OnPlayerGameOver?.Invoke();
+                }
             }
         }
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using _Game.Scripts.Extensions;
+using _Game.Scripts.Units.Skins;
 using UnityEngine;
 
 namespace _Game.Scripts.Units.Player
@@ -27,7 +29,16 @@ namespace _Game.Scripts.Units.Player
         #endregion
 
         #region METHODS
-        
+
+        public override void Initialize(int detailCount, UnitSkin unitSkin)
+        {
+            gameObject.SetLayer("Player");
+            
+            base.Initialize(detailCount, unitSkin);
+            
+            Tail.SetLayer("Player");
+        }
+
         #endregion
     }
 }

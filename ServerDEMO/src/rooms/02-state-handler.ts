@@ -119,7 +119,7 @@ export class State extends Schema {
 
 export class StateHandlerRoom extends Room<State> {
 
-  maxClients = 2;
+  maxClients = 10;
   startAplleCount = 100;
   skins: number[] = [];
 
@@ -166,9 +166,7 @@ export class StateHandlerRoom extends Room<State> {
   }
 
   onJoin(client: Client, data: any) {
-      if (this.clients.length > 1) this.lock();
-
-      const skin = this.skins[this.clients.length - 1];
+      const skin = this.skins[(this.clients.length - 1) % this.skins.length];
 
       this.state.createPlayer(client.sessionId, data, skin);
   }

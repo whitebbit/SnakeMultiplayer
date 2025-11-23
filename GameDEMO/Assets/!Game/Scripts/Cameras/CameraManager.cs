@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace _Game.Scripts.Cameras
 {
@@ -10,6 +11,8 @@ namespace _Game.Scripts.Cameras
 
         #region FIELDS
 
+        private Transform _camera;
+
         #endregion
 
         #region UNITY FUNCTIONS
@@ -17,19 +20,15 @@ namespace _Game.Scripts.Cameras
         private void Start()
         {
             if (!Camera.main) return;
-            
-            var cam = Camera.main.transform;
-            
-            cam.SetParent(transform);
-            cam.localPosition = Vector3.zero;
+
+            _camera = Camera.main.transform;
+            _camera.position = transform.position;
         }
 
-        private void OnDestroy()
+        private void Update()
         {
-            if (!Camera.main) return;
-            
-            var cam = Camera.main.transform;
-            cam.SetParent(null);
+            _camera.transform.position =
+                Vector3.Lerp(_camera.transform.position, transform.position, Time.deltaTime * 5);
         }
 
         #endregion

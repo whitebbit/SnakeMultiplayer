@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using _Game.Scripts.Extensions;
 using _Game.Scripts.Units.Skins;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ namespace _Game.Scripts.Units
 
         private SnakePart _head;
         private UnitSkinLoader _skinLoader;
+
+        private string _layer;
 
         #endregion
 
@@ -54,6 +57,15 @@ namespace _Game.Scripts.Units
             _rotationHistory.Add(transform.rotation);
 
             SetDetailCount(detailCount);
+        }
+
+        public void SetLayer(string layer)
+        {
+            _layer = layer;
+
+            gameObject.SetLayer(layer);
+            foreach (var detail in _details)
+                detail.gameObject.SetLayer(layer);
         }
 
         public void SetDetailCount(int detailCount)
@@ -90,6 +102,9 @@ namespace _Game.Scripts.Units
             _rotationHistory.Add(rotation);
 
             _skinLoader.AddSkinPart(detail);
+
+            if (string.IsNullOrEmpty(_layer) == false)
+                detail.gameObject.SetLayer(_layer);
         }
 
         private void RemoveDetail()
