@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using _Game.Scripts.Map;
 using _Game.Scripts.Multiplayer.Schemas;
 using _Game.Scripts.Units;
@@ -6,6 +8,7 @@ using _Game.Scripts.Units.Enemy;
 using _Game.Scripts.Units.Player;
 using _Game.Scripts.Units.Skins;
 using Colyseus;
+using TMPro;
 using UnityEngine;
 
 namespace _Game.Scripts.Multiplayer
@@ -19,6 +22,8 @@ namespace _Game.Scripts.Multiplayer
         [SerializeField] private EnemyUnit enemyPrefab;
         [SerializeField] private Apple applePrefab;
 
+        [SerializeField] private TMP_Text leaderboardText;
+
         [SerializeField] private UnitSkin[] skins;
 
         #endregion
@@ -30,6 +35,7 @@ namespace _Game.Scripts.Multiplayer
 
         private readonly Dictionary<string, EnemyUnit> _enemies = new();
         private readonly Dictionary<AppleSchema, Apple> _apples = new();
+        private readonly Dictionary<string, LeaderboardPair> _leaderboard = new();
 
         #endregion
 
@@ -77,7 +83,8 @@ namespace _Game.Scripts.Multiplayer
         {
             var data = new Dictionary<string, object>
             {
-                { "sC", skins.Length }
+                { "sC", skins.Length },
+                { "nickname", PlayerSettings.Instance.Nickname },
             };
 
             _room = await client.JoinOrCreate<State>(GameRoomName, data);
@@ -117,6 +124,8 @@ namespace _Game.Scripts.Multiplayer
 
             stateTransmitter.SetMovement(aim);
             playerUnit.Controller.Initialize(player, playerUnit, aim, stateTransmitter);
+
+            AddLeader(_room.SessionId, player);
         }
 
         private void CreateEnemy(string key, Player player)
@@ -129,10 +138,14 @@ namespace _Game.Scripts.Multiplayer
             enemyUnit.Controller.Initialize(player, enemyUnit);
 
             _enemies.Add(key, enemyUnit);
+
+            AddLeader(key, player);
         }
 
         private void RemoveEnemy(string key, Player player)
         {
+            RemoveLeader(key);
+
             if (!_enemies.Remove(key, out var enemy)) return;
 
             enemy.Destroy();
@@ -152,6 +165,49 @@ namespace _Game.Scripts.Multiplayer
             if (_apples.Remove(value, out var apple)) apple.Destroy();
         }
 
+        public void UpdateScore(string sessionID, int score)
+        {
+            if (!_leaderboard.TryGetValue(sessionID, out var leader)) return;
+            
+            leader.Score = score;
+            UpdateLeaderboard();
+        }
+
+        private void AddLeader(string key, Player player)
+        {
+            _leaderboard.TryAdd(key, new LeaderboardPair { Nickname = player.nickname, Score = player.score });
+            UpdateLeaderboard();
+        }
+
+        private void RemoveLeader(string key)
+        {
+            _leaderboard.Remove(key);
+            UpdateLeaderboard();
+        }
+
+        private void UpdateLeaderboard()
+        {
+            var topCount = Math.Clamp(_leaderboard.Count, 0, 5);
+            var top5 = _leaderboard.OrderByDescending(x => x.Value.Score).Take(topCount);
+
+            var text = "";
+            var index = 1;
+
+            foreach (var leader in top5)
+            {
+                text += $"{index}. {leader.Value.Nickname}: {leader.Value.Score}\n";
+                index++;
+            }
+
+            leaderboardText.text = text;
+        }
+
         #endregion
+    }
+
+    public class LeaderboardPair
+    {
+        public string Nickname;
+        public int Score;
     }
 }

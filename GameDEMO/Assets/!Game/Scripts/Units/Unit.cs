@@ -22,7 +22,7 @@ namespace _Game.Scripts.Units
         public SnakeMovement Movement => movement;
 
         protected SnakeTail Tail;
-        protected string ClientId;
+        public string ClientId {get; private set;}
 
         #endregion
 

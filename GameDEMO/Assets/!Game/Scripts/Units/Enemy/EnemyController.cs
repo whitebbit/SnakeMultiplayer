@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using _Game.Scripts.Multiplayer;
 using _Game.Scripts.Multiplayer.Schemas;
 using _Game.Scripts.Units.Interfaces;
 using Colyseus.Schema;
@@ -59,6 +60,9 @@ namespace _Game.Scripts.Units.Enemy
                         break;
                     case "d":
                         _unit.SetDetailCount((byte)change.Value);
+                        break;
+                    case "score":
+                        MultiplayerManager.Instance.UpdateScore(_unit.ClientId, (ushort)change.Value);
                         break;
                     default:
                         Debug.LogWarning($"{change.Field} not supported");

@@ -19,5 +19,8 @@ public partial class Player : Schema {
 
 	[Type(3, "uint16")]
 	public ushort score = default(ushort);
+
+	[Type(4, "string")]
+	public string nickname = default(string);
 }
 

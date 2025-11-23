@@ -37,6 +37,9 @@ export class Player extends Schema {
     @type("uint16")
     score = 0;
 
+    @type("string")
+    nickname = "";
+
     setPosition(vector: Vector3) {
       const position = new Vector3Schema();
 
@@ -98,6 +101,7 @@ export class State extends Schema {
     createPlayer(sessionId: string, data: any, skin: any) {
         const player = new Player();
 
+        player.nickname = data.nickname || "";
         player.sI = skin;
 
         if (data.pos)
@@ -128,7 +132,6 @@ export class State extends Schema {
 
         this.delayClearGameOverIDs(clientId);
 
-        
         this.removePlayer(clientId);
 
         for (let index = 0; index < gameOverData.dP.length; index++) {
