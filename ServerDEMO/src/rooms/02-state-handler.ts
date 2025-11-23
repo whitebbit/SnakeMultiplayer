@@ -13,12 +13,6 @@ export class Vector3Schema extends Schema {
 
     @type("number")
     z = Math.floor(Math.random() * 256) - 128;
-
-    set(vector: Vector3) {
-        this.x = vector.x;
-        this.y = vector.y;
-        this.z = vector.z;
-    }
 }
 
 export class Vector2Schema extends Schema {
@@ -27,11 +21,6 @@ export class Vector2Schema extends Schema {
 
     @type("number")
     y = Math.floor(Math.random() * 256) - 128;;
-
-    set(vector: Vector2) {
-        this.x = vector.x;
-        this.y = vector.y;
-    }
 }
 
 export class Player extends Schema {
@@ -56,13 +45,47 @@ export class Player extends Schema {
     }
 }
 
+export class AppleSchema extends Schema {
+    @type(Vector2Schema)
+    position = new Vector2Schema();
+
+    @type("uint32")
+    id = 0;
+
+    setPosition(vector: Vector2) {
+        const position = new Vector2Schema();
+  
+        position.x = vector.x;
+        position.y = vector.y;
+  
+        this.position = position;
+    }
+}
+
 export class State extends Schema {
     @type({ map: Player }) players = new MapSchema<Player>();
-    @type([Vector2Schema]) apples = new ArraySchema<Vector2Schema>();
+    @type([AppleSchema]) apples = new ArraySchema<AppleSchema>();
+
+    appleLastId = 0;
 
     createApple() {
-        const apple = new Vector2Schema();
+        const apple = new AppleSchema();
+        
+        apple.id = this.appleLastId++;
+
         this.apples.push(apple);
+        
+    }
+
+    collectApple(player: Player, data: any) {
+        const apple = this.apples.find(apple => apple.id === data.id);
+        if (apple) {
+
+            const x = Math.floor(Math.random() * 256) - 128;
+            const y = Math.floor(Math.random() * 256) - 128;
+
+            apple.setPosition({ x, y });
+        }
     }
 
     createPlayer(sessionId: string, data: any, skin: any) {
@@ -120,6 +143,11 @@ export class StateHandlerRoom extends Room<State> {
 
       this.onMessage("move", (client, data) => {
           this.state.movePlayer(client.sessionId, data);
+      });
+
+      this.onMessage("collect", (client, data) => {    
+        const player = this.state.players.get(client.sessionId);
+        this.state.collectApple(player, data);
       });
 
       for (let index = 0; index < this.startAplleCount; index++) {

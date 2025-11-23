@@ -29,7 +29,7 @@ namespace _Game.Scripts.Multiplayer
         private ColyseusRoom<State> _room;
 
         private readonly Dictionary<string, EnemyUnit> _enemies = new();
-        private readonly Dictionary<Vector2Schema, Apple> _apples = new();
+        private readonly Dictionary<AppleSchema, Apple> _apples = new();
 
         #endregion
 
@@ -138,16 +138,16 @@ namespace _Game.Scripts.Multiplayer
             enemy.Destroy();
         }
 
-        private void CreateApple(Vector2Schema vector2Schema)
+        private void CreateApple(AppleSchema appleSchema)
         {
-            var position = vector2Schema.ToVector3();
+            var position = appleSchema.position.ToVector3();
             var apple = Instantiate(applePrefab, position, Quaternion.identity);
 
-            apple.Initialize(vector2Schema);
-            _apples.Add(vector2Schema, apple);
+            apple.Initialize(appleSchema);
+            _apples.Add(appleSchema, apple);
         }
 
-        private void RemoveApple(int key, Vector2Schema value)
+        private void RemoveApple(int key, AppleSchema value)
         {
             if (_apples.Remove(value, out var apple)) apple.Destroy();
         }

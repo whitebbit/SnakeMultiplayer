@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _Game.Scripts.Detectors;
 using _Game.Scripts.Multiplayer.Schemas;
 using _Game.Scripts.Units.Interfaces;
 using Colyseus.Schema;
@@ -31,6 +32,9 @@ namespace _Game.Scripts.Units.Player
             _camera = Camera.main;
 
             _player.OnChange += OnChange;
+
+            if(_aim.TryGetComponent(out Detector detector))
+                detector.Initialize(_movement.Head.transform);
         }
 
         private void Update()
