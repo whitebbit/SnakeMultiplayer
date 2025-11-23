@@ -68,6 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
+  particle: {fileID: 1842031063863612882, guid: f18bc8e86746677419b9e0340a6aa844, type: 3}
   renderers:
   - {fileID: 2873246800872626590}
 --- !u!1001 &7450168493252998753

@@ -8,6 +8,7 @@ namespace _Game.Scripts.Units
         #region FIELDS SERIALIZED
 
         [SerializeField] private SnakePartType type;
+        [SerializeField] private ParticleSystem particle;
         [SerializeField] private MeshRenderer[] renderers;
 
         #endregion
@@ -15,10 +16,19 @@ namespace _Game.Scripts.Units
         #region FIELDS
 
         public SnakePartType Type => type;
+        private Material _material;
 
         #endregion
 
         #region UNITY FUNCTIONS
+
+        private void OnDestroy()
+        {
+            var obj = Instantiate(particle, transform.position, transform.rotation);
+            var render = obj.GetComponent<Renderer>();
+
+            if (render) render.material = _material;
+        }
 
         #endregion
 
@@ -26,6 +36,7 @@ namespace _Game.Scripts.Units
 
         public void SetMaterial(Material material)
         {
+            _material = material;
             foreach (var renderer in renderers)
             {
                 renderer.material = material;

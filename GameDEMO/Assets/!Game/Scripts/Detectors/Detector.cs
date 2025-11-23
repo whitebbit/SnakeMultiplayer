@@ -1,6 +1,8 @@
 ﻿using System;
 using _Game.Scripts.Map;
 using _Game.Scripts.Map.Interfaces;
+using _Game.Scripts.Units;
+using _Game.Scripts.Units.Enemy;
 using UnityEngine;
 
 namespace _Game.Scripts.Detectors
@@ -47,8 +49,19 @@ namespace _Game.Scripts.Detectors
                 if (_results[i].TryGetComponent(out ICollectable obj)) obj.Collect();
                 else
                 {
-                    Debug.Log(_results[i].name + " is not collectable");
-                    GameContext.OnPlayerGameOver?.Invoke();
+                    if (_results[i].GetComponentInParent<EnemyUnit>())
+                    {
+                        var enemy = _results[i].transform;
+                        var playerAngle = Vector3.Angle(enemy.position - _point.position, transform.forward);
+                        var enemyAngle = Vector3.Angle(_point.position - enemy.position, enemy.forward);
+
+                        if (playerAngle < enemyAngle + 5)
+                            GameContext.OnPlayerGameOver?.Invoke();
+                    }
+                    else
+                    {
+                        GameContext.OnPlayerGameOver?.Invoke();
+                    }
                 }
             }
         }
