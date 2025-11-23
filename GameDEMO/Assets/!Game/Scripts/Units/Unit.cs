@@ -1,4 +1,5 @@
-﻿using _Game.Scripts.Units.Interfaces;
+﻿using _Game.Scripts.Multiplayer;
+using _Game.Scripts.Units.Interfaces;
 using _Game.Scripts.Units.Player;
 using _Game.Scripts.Units.Skins;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace _Game.Scripts.Units
         public SnakeMovement Movement => movement;
 
         protected SnakeTail Tail;
+        protected string ClientId;
 
         #endregion
 
@@ -30,8 +32,10 @@ namespace _Game.Scripts.Units
 
         #region METHODS
 
-        public virtual void Initialize(int detailCount, UnitSkin unitSkin)
+        public virtual void Initialize(string clientId, int detailCount, UnitSkin unitSkin)
         {
+            ClientId = clientId;
+
             Tail = Instantiate(tailPrefab, transform.position, Quaternion.identity);
             Tail.Initialize(movement.Head, detailCount, skinLoader);
 

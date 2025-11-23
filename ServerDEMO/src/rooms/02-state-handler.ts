@@ -70,6 +70,7 @@ export class State extends Schema {
     @type([AppleSchema]) apples = new ArraySchema<AppleSchema>();
 
     appleLastId = 0;
+    gameOverIds: number[] = [];
 
     createApple() {
         const apple = new AppleSchema();
@@ -106,7 +107,8 @@ export class State extends Schema {
     }
 
     removePlayer(sessionId: string) {
-        this.players.delete(sessionId);
+        if(this.players.has(sessionId)) 
+            this.players.delete(sessionId);
     }
 
     movePlayer (sessionId: string, data: any) {
@@ -114,6 +116,38 @@ export class State extends Schema {
         
         if (data.pos)
           player.setPosition(data.pos);
+    }
+
+    gameOver(data){
+        const gameOverData = JSON.parse(data);
+        const clientId = gameOverData.id;
+        
+        if(this.gameOverIds.find(id => id === clientId)) return;
+        
+        this.gameOverIds.push(clientId);
+
+        this.delayClearGameOverIDs(clientId);
+
+        
+        this.removePlayer(clientId);
+
+        for (let index = 0; index < gameOverData.dP.length; index++) {
+            const apple = new AppleSchema();
+            apple.id = this.appleLastId++;
+            apple.setPosition({ x: gameOverData.dP[index].x , y: gameOverData.dP[index].y });
+
+            this.apples.push(apple);
+        }
+    }
+
+    async delayClearGameOverIDs(clientId){
+        await new Promise(resolve => setTimeout(resolve, 10000));
+
+        const index = this.gameOverIds.findIndex(id => id === clientId)
+        
+        if(index <= -1) return;
+
+        this.gameOverIds.splice(index, 1);
     }
 }
 
@@ -154,6 +188,11 @@ export class StateHandlerRoom extends Room<State> {
       this.onMessage("collect", (client, data) => {    
         const player = this.state.players.get(client.sessionId);
         this.state.collectApple(player, data);
+      });
+
+
+      this.onMessage("gameOver", (client, data) => {    
+        this.state.gameOver(data);
       });
 
       for (let index = 0; index < this.startAplleCount; index++) {

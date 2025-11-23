@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using _Game.Scripts.Extensions;
 using _Game.Scripts.Units.Skins;
 using UnityEngine;
@@ -161,6 +162,20 @@ namespace _Game.Scripts.Units
             }
         }
 
+        public Vector2[] GetDetailPositions()
+        {
+            var positions = new Vector2[_details.Count];
+
+            for (var i = 0; i < _details.Count; i++)
+            {
+                positions[i] = new Vector2(_details[i].transform.position.x, _details[i].transform.position.z);
+            }
+
+            return positions;
+        }
+
         #endregion
     }
+
+    
 }

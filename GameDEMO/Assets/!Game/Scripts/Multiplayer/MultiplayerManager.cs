@@ -110,7 +110,7 @@ namespace _Game.Scripts.Multiplayer
             var playerUnit = Instantiate(playerPrefab, position, rotation);
             var aim = Instantiate(playerAimPrefab, position, rotation);
 
-            playerUnit.Initialize(player.d, skins[player.sI]);
+            playerUnit.Initialize(_room.SessionId, player.d, skins[player.sI]);
             aim.SetSpeed(playerUnit.Movement.MoveSpeed);
 
             var stateTransmitter = playerUnit.GetComponent<PlayerStateTransmitter>();
@@ -124,7 +124,7 @@ namespace _Game.Scripts.Multiplayer
             var position = player.position.ToVector3();
             var enemyUnit = Instantiate(enemyPrefab, position, Quaternion.identity);
 
-            enemyUnit.Initialize(player.d, skins[player.sI]);
+            enemyUnit.Initialize(key, player.d, skins[player.sI]);
 
             enemyUnit.Controller.Initialize(player, enemyUnit);
 
