@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using _Game.Scripts.Map;
 using _Game.Scripts.Multiplayer.Schemas;
 using _Game.Scripts.Units;
 using _Game.Scripts.Units.Enemy;
@@ -16,6 +17,7 @@ namespace _Game.Scripts.Multiplayer
         [SerializeField] private SnakeMovement playerAimPrefab;
         [SerializeField] private PlayerUnit playerPrefab;
         [SerializeField] private EnemyUnit enemyPrefab;
+        [SerializeField] private Apple applePrefab;
 
         [SerializeField] private UnitSkin[] skins;
 
@@ -25,7 +27,9 @@ namespace _Game.Scripts.Multiplayer
 
         private const string GameRoomName = "state_handler";
         private ColyseusRoom<State> _room;
+
         private readonly Dictionary<string, EnemyUnit> _enemies = new();
+        private readonly Dictionary<Vector2Schema, Apple> _apples = new();
 
         #endregion
 
@@ -92,7 +96,12 @@ namespace _Game.Scripts.Multiplayer
 
             _room.State.players.OnAdd += CreateEnemy;
             _room.State.players.OnRemove += RemoveEnemy;
+
+            _room.State.apples.ForEach(CreateApple);
+            _room.State.apples.OnAdd += (_, apple) => CreateApple(apple);
+            _room.State.apples.OnRemove += RemoveApple;
         }
+
 
         private void CreatePlayer(Player player)
         {
@@ -105,7 +114,7 @@ namespace _Game.Scripts.Multiplayer
             aim.SetSpeed(playerUnit.Movement.MoveSpeed);
 
             var stateTransmitter = playerUnit.GetComponent<PlayerStateTransmitter>();
-            
+
             stateTransmitter.SetMovement(aim);
             playerUnit.Controller.Initialize(player, playerUnit, aim, stateTransmitter);
         }
@@ -127,6 +136,20 @@ namespace _Game.Scripts.Multiplayer
             if (!_enemies.Remove(key, out var enemy)) return;
 
             enemy.Destroy();
+        }
+
+        private void CreateApple(Vector2Schema vector2Schema)
+        {
+            var position = vector2Schema.ToVector3();
+            var apple = Instantiate(applePrefab, position, Quaternion.identity);
+
+            apple.Initialize(vector2Schema);
+            _apples.Add(vector2Schema, apple);
+        }
+
+        private void RemoveApple(int key, Vector2Schema value)
+        {
+            if (_apples.Remove(value, out var apple)) apple.Destroy();
         }
 
         #endregion

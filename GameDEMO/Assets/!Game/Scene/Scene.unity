@@ -1226,6 +1226,7 @@ MonoBehaviour:
   playerAimPrefab: {fileID: 6643469518551485479, guid: 8710a97e7e9f91c4dae20cdff1f737b2, type: 3}
   playerPrefab: {fileID: 4114477992152187313, guid: 71e9e8010faf3d44689b399e20fbd7ad, type: 3}
   enemyPrefab: {fileID: 1568979098668681281, guid: 2e4fe334443c131439ecb16e7dbb87b0, type: 3}
+  applePrefab: {fileID: -3664451806420095526, guid: 078b5042c1de072459565f4a6264b378, type: 3}
   skins:
   - main: {fileID: 2100000, guid: 2ae11e6cba4c1954a8c438ff034e450c, type: 2}
     tail: {fileID: 2100000, guid: b06f1c4f3c58fd243a50653b939ede2c, type: 2}

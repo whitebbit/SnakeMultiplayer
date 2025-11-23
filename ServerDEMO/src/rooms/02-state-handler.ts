@@ -1,5 +1,5 @@
 import { Room, Client } from "colyseus";
-import { Schema, type, MapSchema } from "@colyseus/schema";
+import { Schema, type, MapSchema, ArraySchema } from "@colyseus/schema";
 
 type Vector3 = { x: number; y: number; z: number };
 type Vector2 = { x: number; y: number };
@@ -23,10 +23,10 @@ export class Vector3Schema extends Schema {
 
 export class Vector2Schema extends Schema {
     @type("number")
-    x = 0;
+    x = Math.floor(Math.random() * 256) - 128;
 
     @type("number")
-    y = 0;
+    y = Math.floor(Math.random() * 256) - 128;;
 
     set(vector: Vector2) {
         this.x = vector.x;
@@ -57,9 +57,14 @@ export class Player extends Schema {
 }
 
 export class State extends Schema {
-    @type({ map: Player })
-    players = new MapSchema<Player>();
-    
+    @type({ map: Player }) players = new MapSchema<Player>();
+    @type([Vector2Schema]) apples = new ArraySchema<Vector2Schema>();
+
+    createApple() {
+        const apple = new Vector2Schema();
+        this.apples.push(apple);
+    }
+
     createPlayer(sessionId: string, data: any, skin: any) {
         const player = new Player();
 
@@ -86,6 +91,7 @@ export class State extends Schema {
 export class StateHandlerRoom extends Room<State> {
 
   maxClients = 2;
+  startAplleCount = 100;
   skins: number[] = [];
 
   mixArray(arr){
@@ -115,6 +121,10 @@ export class StateHandlerRoom extends Room<State> {
       this.onMessage("move", (client, data) => {
           this.state.movePlayer(client.sessionId, data);
       });
+
+      for (let index = 0; index < this.startAplleCount; index++) {
+        this.state.createApple();
+      }
   }
 
   onAuth(client, options, req) {
