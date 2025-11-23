@@ -31,11 +31,11 @@ namespace _Game.Scripts.Units.Player
 
         #region METHODS
 
-        public override void Initialize(string clientId, int detailCount, UnitSkin unitSkin)
+        public override void Initialize(string clientId, global::Player player, UnitSkin unitSkin)
         {
             gameObject.SetLayer("Player");
 
-            base.Initialize(clientId, detailCount, unitSkin);
+            base.Initialize(clientId, player, unitSkin);
 
             Tail.SetLayer("Player");
         }

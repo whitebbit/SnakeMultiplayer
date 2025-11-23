@@ -2,6 +2,7 @@
 using _Game.Scripts.Units.Interfaces;
 using _Game.Scripts.Units.Player;
 using _Game.Scripts.Units.Skins;
+using TMPro;
 using UnityEngine;
 
 namespace _Game.Scripts.Units
@@ -13,6 +14,7 @@ namespace _Game.Scripts.Units
         [SerializeField] private SnakeMovement movement;
         [SerializeField] private SnakeTail tailPrefab;
         [SerializeField] private UnitSkinLoader skinLoader;
+        [SerializeField] private TMP_Text nicknameText;
 
         #endregion
 
@@ -22,7 +24,9 @@ namespace _Game.Scripts.Units
         public SnakeMovement Movement => movement;
 
         protected SnakeTail Tail;
-        public string ClientId {get; private set;}
+        public string ClientId { get; private set; }
+
+        private global::Player _player;
 
         #endregion
 
@@ -32,14 +36,17 @@ namespace _Game.Scripts.Units
 
         #region METHODS
 
-        public virtual void Initialize(string clientId, int detailCount, UnitSkin unitSkin)
+        public virtual void Initialize(string clientId, global::Player player, UnitSkin unitSkin)
         {
             ClientId = clientId;
+            _player = player;
 
             Tail = Instantiate(tailPrefab, transform.position, Quaternion.identity);
-            Tail.Initialize(movement.Head, detailCount, skinLoader);
+            Tail.Initialize(movement.Head, _player.d, skinLoader);
 
             skinLoader.LoadSkin(unitSkin);
+
+            nicknameText.text = player.nickname;
         }
 
         public virtual void Destroy()
