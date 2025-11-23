@@ -73,7 +73,6 @@ namespace _Game.Scripts.Map
                 }
             }
 
-            Debug.Log($"Apple position: {position}");
             transform.position = position;
             gameObject.SetActive(true);
         }

@@ -29,10 +29,13 @@ export class Player extends Schema {
     position = new Vector3Schema();
 
     @type("uint8")
-    d = 2;
+    d = 0;
 
     @type("int8")
     sI = 0;
+
+    @type("uint16")
+    score = 0;
 
     setPosition(vector: Vector3) {
       const position = new Vector3Schema();
@@ -85,6 +88,9 @@ export class State extends Schema {
             const y = Math.floor(Math.random() * 256) - 128;
 
             apple.setPosition({ x, y });
+
+            player.score ++;
+            player.d = Math.round(player.score / 3);
         }
     }
 
